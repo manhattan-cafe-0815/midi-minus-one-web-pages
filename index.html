@@ -4,18 +4,81 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>マイナスワン MIDIプレイヤー</title>
-  <script type="module" crossorigin src="./assets/main-Zcqw2vBq.js"></script>
+  <meta name="description" content="MIDI を再生しながら、パートをワンタッチで切り替える、ピアノ練習用のプレイヤー" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="マイナスワン" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <script type="module" crossorigin src="./assets/main-BRUhCERj.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/spessasynth_processor.min-CDgYhvzD.js">
-  <link rel="stylesheet" crossorigin href="./assets/main-CFEo2er-.css">
+  <link rel="stylesheet" crossorigin href="./assets/main-B8jR3eE5.css">
 </head>
 <body>
-  <main class="app">
-    <header>
-      <h1>マイナスワン MIDIプレイヤー</h1>
-    </header>
+  <aside id="install-hint" class="hint" hidden>
+    <p>
+      <strong>ホーム画面に追加して使う</strong><br />
+      共有ボタン（□に↑）→「ホーム画面に追加」。全画面で使えて、保存した音源も消えにくくなります。
+    </p>
+    <button id="btn-hint-close" type="button" class="tbtn">閉じる</button>
+  </aside>
 
-    <section class="card" aria-labelledby="h-sound">
-      <h2 id="h-sound">音源</h2>
+  <header class="toolbar">
+    <label class="tbtn primary" for="midi-file">MIDI を開く</label>
+    <input type="file" id="midi-file" class="visually-hidden" accept=".mid,.midi" />
+    <button id="btn-all" type="button" class="tbtn" disabled>全チャンネル</button>
+    <button id="btn-unsolo" type="button" class="tbtn" hidden>ソロ解除</button>
+    <span class="spacer"></span>
+    <button id="btn-menu" type="button" class="tbtn" aria-haspopup="dialog">メニュー</button>
+  </header>
+
+  <main class="layout">
+    <section class="player" aria-label="再生">
+      <div class="songline">
+        <h1 id="song-name" class="song-name">MIDI ファイルを開いてください</h1>
+        <span id="song-meta" class="song-meta"></span>
+      </div>
+
+      <div id="groups" class="groups" role="group" aria-label="パート"></div>
+
+      <div class="transport">
+        <button id="btn-play" type="button" class="btn primary" disabled>▶ 再生</button>
+        <button id="btn-stop" type="button" class="btn" disabled>■ 停止</button>
+        <div class="seek">
+          <input type="range" id="seek" min="0" max="1000" step="1" value="0" disabled aria-label="再生位置" />
+          <div class="time"><span id="time-now">0:00</span><span id="time-total">0:00</span></div>
+        </div>
+      </div>
+
+      <div class="speedbox">
+        <span class="label">速度</span>
+        <input type="range" id="speed" min="-34" max="34" step="1" value="0" aria-label="速度" />
+        <output id="speed-label" for="speed">×100%</output>
+        <button id="btn-speed-reset" type="button" class="btn">等倍</button>
+      </div>
+      <p id="bpm" class="bpm">BPM: —</p>
+
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="channels-panel" aria-labelledby="h-channels">
+      <h2 id="h-channels">チャンネル</h2>
+      <div id="channels" class="channels"><p class="status">曲を開くと、チャンネルの一覧が出ます。</p></div>
+    </section>
+  </main>
+
+  <dialog id="menu" class="menu" aria-labelledby="h-menu">
+    <div class="menu-head">
+      <h2 id="h-menu">メニュー</h2>
+      <button id="btn-menu-close" type="button" class="tbtn">閉じる</button>
+    </div>
+
+    <section>
+      <h3>音源（SoundFont）</h3>
       <p id="sound-status" class="status">確認中…</p>
       <div class="row">
         <label class="btn" for="sf-file">音源（.sf2）を選ぶ</label>
@@ -24,57 +87,16 @@
       </div>
     </section>
 
-    <section class="card" aria-labelledby="h-song">
-      <h2 id="h-song">曲</h2>
-      <p id="song-status" class="status">MIDI ファイルを選んでください。</p>
-      <div class="row">
-        <label class="btn" for="midi-file">MIDI を開く</label>
-        <input type="file" id="midi-file" class="visually-hidden" accept=".mid,.midi" />
-      </div>
+    <section>
+      <h3>このアプリ</h3>
+      <pre id="app-info" class="info"></pre>
     </section>
 
-    <section class="card" aria-labelledby="h-play">
-      <h2 id="h-play">再生</h2>
-      <div class="row transport">
-        <button id="btn-play" type="button" class="btn primary" disabled>▶ 再生</button>
-        <button id="btn-stop" type="button" class="btn" disabled>■ 停止</button>
-      </div>
-      <div class="seek">
-        <input type="range" id="seek" min="0" max="1000" step="1" value="0" disabled aria-label="再生位置" />
-        <div class="time"><span id="time-now">0:00</span><span id="time-total">0:00</span></div>
-      </div>
+    <section>
+      <h3>診断</h3>
+      <pre id="diag" class="info"></pre>
     </section>
+  </dialog>
 
-    <section class="card" aria-labelledby="h-parts">
-      <h2 id="h-parts">パート</h2>
-      <div id="groups" class="groups"></div>
-      <div class="row">
-        <button id="btn-all" type="button" class="btn" disabled>全チャンネル</button>
-        <button id="btn-unsolo" type="button" class="btn" hidden>ソロ解除</button>
-      </div>
-    </section>
-
-    <section class="card" aria-labelledby="h-speed">
-      <h2 id="h-speed">速度</h2>
-      <div class="row speed">
-        <input type="range" id="speed" min="-34" max="34" step="1" value="0" aria-label="速度" />
-        <output id="speed-label" for="speed">×100%</output>
-        <button id="btn-speed-reset" type="button" class="btn">等倍</button>
-      </div>
-      <p id="bpm" class="status bpm">BPM: —</p>
-    </section>
-
-    <section class="card" aria-labelledby="h-channels">
-      <h2 id="h-channels">チャンネル</h2>
-      <div id="channels" class="channels"><p class="status">曲を開くと、チャンネルの一覧が出ます。</p></div>
-    </section>
-
-    <p id="message" class="message" role="status" aria-live="polite"></p>
-
-    <details class="diag">
-      <summary>診断</summary>
-      <pre id="diag"></pre>
-    </details>
-  </main>
 </body>
 </html>

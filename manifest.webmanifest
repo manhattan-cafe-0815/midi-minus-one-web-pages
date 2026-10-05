@@ -1,0 +1,16 @@
+{
+  "name": "マイナスワン MIDIプレイヤー",
+  "short_name": "マイナスワン",
+  "description": "MIDI を再生しながら、パート（ピアノ右手・左手・伴奏・リズム）をワンタッチで切り替える、ピアノ練習用のプレイヤー",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0a6cff",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
