@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>M0 実機検証</title>
+  <style>:root{--lightningcss-light:initial;--lightningcss-dark: ;color-scheme:light dark;--bg:#fff;--fg:#1c1c1e;--muted:#6b6b70;--card:#f2f2f7;--line:#d1d1d6;--accent:#0a6cff;--ok:#1a8a3a;--ng:#d62b2b}@media (prefers-color-scheme:dark){:root{--lightningcss-light: ;--lightningcss-dark:initial;--bg:#000;--fg:#f2f2f7;--muted:#9a9aa0;--card:#1c1c1e;--line:#3a3a3c;--accent:#4c9aff;--ok:#38c158;--ng:#ff6b6b}}*{box-sizing:border-box}body{padding:12px max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left));background:var(--bg);color:var(--fg);margin:0;max-width:860px;margin-inline:auto;font:15px/1.5 -apple-system,Hiragino Sans,Yu Gothic UI,sans-serif}h1{margin:8px 0 2px;font-size:20px}h2{margin:0 0 8px;font-size:16px}p.note{color:var(--muted);margin:2px 0 8px;font-size:13px}section{background:var(--card);border-radius:12px;margin:12px 0;padding:12px 14px}button,select{font:inherit;border:1px solid var(--line);background:var(--bg);min-height:44px;color:var(--fg);border-radius:10px;padding:6px 14px}input[type=file]::file-selector-button{font:inherit;border:1px solid var(--line);background:var(--bg);min-height:44px;color:var(--fg);border-radius:10px;padding:6px 14px}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button:disabled{opacity:.45}button.on{background:var(--accent);color:#fff;border-color:var(--accent)}button.muted{background:var(--ng);color:#fff;border-color:var(--ng)}.row{flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0;display:flex}input[type=range]{flex:200px;min-height:44px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--line);text-align:left;vertical-align:top;word-break:break-all;padding:3px 6px}td:first-child{white-space:nowrap;color:var(--muted)}.ok{color:var(--ok)}.ng{color:var(--ng)}pre{white-space:pre-wrap;word-break:break-all;max-height:320px;margin:0;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;overflow:auto}.chgrid{grid-template-columns:repeat(4,1fr);gap:6px;display:grid}.chgrid button{min-height:52px;padding:2px 4px;font-size:12px;line-height:1.25}.stat{font:13px/1.5 ui-monospace,Menlo,Consolas,monospace}</style>
+  <script type="module" crossorigin src="../assets/m0-HVQJEioA.js"></script>
+</head>
+<body>
+  <h1>M0 実機検証（試作ページ）</h1>
+  <p class="note">iPad の Safari と、ホーム画面に追加したアプリの両方で開いて、上から順に確かめる。結果は下の「ログ」に出る。コピーして貼り付けてもらえば、こちらで読める。</p>
+
+  <section>
+    <h2>1. 環境</h2>
+    <table id="env"></table>
+    <div class="row">
+      <button id="btn-persist">永続化を要求（storage.persist）</button>
+      <button id="btn-wake">Wake Lock を取る</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. 音声の準備（最初のタップの中で行う）</h2>
+    <div class="row">
+      <label>latencyHint
+        <select id="latency"><option>interactive</option><option>balanced</option><option>playback</option></select>
+      </label>
+      <label><input type="checkbox" id="audiosession" checked /> audioSession を playback にする</label>
+    </div>
+    <div class="row"><button id="btn-audio" class="primary">音を出す準備</button><button id="btn-beep">テスト音（ピアノ・中央ド）</button></div>
+    <p class="note">マナーモード（サイレントスイッチ）を入れた状態で、テスト音が鳴るかを確かめる。SoundFont が未読み込みのときは、音が出ないことがある。</p>
+    <div class="stat" id="audio-stat"></div>
+  </section>
+
+  <section>
+    <h2>3. SoundFont（.sf2）</h2>
+    <div class="row"><input type="file" id="sf-file" accept=".sf2,.sf3,.dls" /></div>
+    <div class="row">
+      <button id="btn-sf-load" class="primary" disabled>選んだ .sf2 をシンセに読み込む</button>
+      <button id="btn-sf-bench" disabled>保存方式を比べる（OPFS／IndexedDB）</button>
+    </div>
+    <div class="row">
+      <button id="btn-sf-from-opfs">OPFS の保存済みを読み込む</button>
+      <button id="btn-sf-from-idb">IndexedDB の保存済みを読み込む</button>
+      <button id="btn-sf-clear">保存済みを全部消す</button>
+    </div>
+    <div class="stat" id="sf-stat"></div>
+  </section>
+
+  <section>
+    <h2>4. MIDI の再生（自作シーケンサ）</h2>
+    <div class="row"><input type="file" id="midi-file" accept=".mid,.midi" multiple /></div>
+    <div class="row"><select id="song" style="flex:1 1 240px"></select></div>
+    <div class="row">
+      <button id="btn-play" class="primary" disabled>再生</button>
+      <button id="btn-stop" disabled>停止</button>
+      <label>タイマー
+        <select id="timer-mode"><option value="worker">Web Worker</option><option value="main">メインスレッド</option></select>
+      </label>
+      <label>先読み
+        <select id="lookahead"><option value="0.1">0.1 秒</option><option value="0.25" selected>0.25 秒</option><option value="0.5">0.5 秒</option><option value="1">1 秒</option></select>
+      </label>
+    </div>
+    <div class="row">
+      <span>速度</span><input type="range" id="speed" min="-34" max="34" value="0" step="1" /><span id="speed-label" style="min-width:5em">×100%</span>
+      <button id="btn-speed-reset">等倍</button>
+    </div>
+    <p class="note">パート（チャンネル）のミュート。タップで ON/OFF（赤＝ミュート）。再生中に切り替えて、すぐ消える・戻るか、鳴りっぱなしにならないかを聞く。</p>
+    <div class="chgrid" id="channels"></div>
+    <div class="row"><button id="btn-unmute">全チャンネル</button></div>
+    <div class="stat" id="play-stat"></div>
+  </section>
+
+  <section>
+    <h2>5. 調律（RPN#1）</h2>
+    <div class="row"><span>ずれ</span><input type="range" id="tune" min="-100" max="100" value="0" step="1" /><span id="tune-label" style="min-width:12em">0 セント</span><button id="btn-tune-reset">440Hz</button></div>
+    <div class="row">
+      <button id="btn-a4">A4 を鳴らす（押している間）</button>
+      <button id="btn-tune-auto">波形で測る（−100／0／+100 セント）</button>
+    </div>
+    <p class="note">「波形で測る」は、A4 を鳴らして FFT でピークの周波数を測り、理論値と比べる。耳でも、スライダーを動かしながら A4 を聞いて確かめる。</p>
+    <div class="stat" id="tune-stat"></div>
+  </section>
+
+  <section>
+    <h2>ログ</h2>
+    <div class="row"><button id="btn-copy">ログをコピー</button><button id="btn-clearlog">消す</button></div>
+    <pre id="log"></pre>
+  </section>
+
+</body>
+</html>
