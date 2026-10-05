@@ -14,9 +14,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="マイナスワン" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <script type="module" crossorigin src="./assets/main-E8uC3SVh.js"></script>
+  <script type="module" crossorigin src="./assets/main-BFP6LiKA.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/spessasynth_processor.min-CDgYhvzD.js">
-  <link rel="stylesheet" crossorigin href="./assets/main-BaZKBGdg.css">
+  <link rel="stylesheet" crossorigin href="./assets/main-CAGuAf1Q.css">
 </head>
 <body>
   <aside id="install-hint" class="hint" hidden>
@@ -32,7 +32,9 @@
     <input type="file" id="midi-file" class="visually-hidden" accept=".mid,.midi" />
     <button id="btn-all" type="button" class="tbtn" disabled>全チャンネル</button>
     <button id="btn-unsolo" type="button" class="tbtn" hidden>ソロ解除</button>
+    <button id="btn-viz" type="button" class="tbtn" aria-pressed="false" disabled>鍵盤表示</button>
     <span class="spacer"></span>
+    <button id="btn-viz-settings" type="button" class="tbtn viz-only" hidden aria-haspopup="dialog">表示設定</button>
     <button id="btn-menu" type="button" class="tbtn" aria-haspopup="dialog">メニュー</button>
   </header>
 
@@ -40,11 +42,18 @@
     <section class="player" aria-label="再生">
       <div class="songline">
         <h1 id="song-name" class="song-name">MIDI ファイルを開いてください</h1>
+        <span id="song-title" class="song-title"></span>
         <span id="song-meta" class="song-meta"></span>
+        <span id="song-bpm" class="song-bpm" hidden></span>
+      </div>
+
+      <div id="viz" class="viz" hidden>
+        <canvas id="viz-canvas" aria-label="鍵盤とパッドの表示"></canvas>
       </div>
 
       <div id="groups" class="groups" role="group" aria-label="パート"></div>
 
+      <div class="controls">
       <div class="transport">
         <button id="btn-play" type="button" class="btn primary" disabled>▶ 再生</button>
         <button id="btn-stop" type="button" class="btn" disabled>■ 停止</button>
@@ -62,11 +71,17 @@
       </div>
       <p id="bpm" class="bpm">BPM: —</p>
 
-      <div class="speedbox">
+      <div class="speedbox transpose-row">
         <span class="label">移調</span>
         <input type="range" id="transpose" min="-12" max="12" step="1" value="0" aria-label="移調（半音）" />
-        <output id="transpose-label" for="transpose">原調</output>
+        <div class="stepper">
+          <button id="btn-transpose-down" type="button" class="btn step" aria-label="半音下げる">－</button>
+          <output id="transpose-label" for="transpose">原調</output>
+          <button id="btn-transpose-up" type="button" class="btn step" aria-label="半音上げる">＋</button>
+        </div>
         <button id="btn-transpose-reset" type="button" class="btn">原調</button>
+      </div>
+
       </div>
 
       <div class="tuning">
@@ -132,6 +147,67 @@
       <h3>診断</h3>
       <pre id="diag" class="info"></pre>
     </section>
+  </dialog>
+
+  <dialog id="viz-settings" class="menu" aria-labelledby="h-viz-settings">
+    <div class="menu-head">
+      <h2 id="h-viz-settings">表示の設定</h2>
+      <button id="btn-viz-settings-close" type="button" class="tbtn">閉じる</button>
+    </div>
+
+    <section>
+      <h3>表示スタイル</h3>
+      <div class="seg" role="radiogroup" aria-label="表示スタイル">
+        <label><input type="radio" name="viz-style" value="Rising" /> 鳴らした音が上へ流れる</label>
+        <label><input type="radio" name="viz-style" value="Falling" /> これから鳴る音が降ってくる</label>
+        <label><input type="radio" name="viz-style" value="KeysOnly" /> 鍵盤だけ</label>
+      </div>
+    </section>
+
+    <section>
+      <h3>画面の分け方</h3>
+      <div class="seg" role="radiogroup" aria-label="画面の分け方">
+        <label><input type="radio" name="viz-layout" value="Combined" /> 全パート一緒</label>
+        <label><input type="radio" name="viz-layout" value="ByGroup" /> グループごと</label>
+        <label><input type="radio" name="viz-layout" value="ByChannel" /> チャンネルごと</label>
+      </div>
+    </section>
+
+    <section>
+      <h3>表示タイミングの調整</h3>
+      <p class="note">音と画面がずれて聞こえるときに合わせます。＋は表示を遅らせる（音が遅れて聞こえるとき）、－は早めます。再生しながら調整できます。</p>
+      <div class="offset-row">
+        <span>音帯</span>
+        <input type="range" id="band-offset" min="-2000" max="2000" step="10" value="0" aria-label="音帯の表示タイミング" />
+        <output id="band-offset-label">0 ms</output>
+        <button id="btn-band-offset-reset" type="button" class="btn">0</button>
+      </div>
+      <div class="offset-row">
+        <span>鍵・パッド</span>
+        <input type="range" id="key-offset" min="-2000" max="2000" step="10" value="0" aria-label="鍵・パッドの発色のタイミング" />
+        <output id="key-offset-label">0 ms</output>
+        <button id="btn-key-offset-reset" type="button" class="btn">0</button>
+      </div>
+      <p class="note">音帯＝流れる帯・降ってくる棒・小節線。鍵・パッド＝鍵盤とパッドの発色。－の側は、先に送ってある音（約0.2秒先まで）までしか、早められません。降ってくる棒は、どちらの向きにも調整できます。</p>
+    </section>
+
+    <section>
+      <h3>打楽器パッド</h3>
+      <p class="note">固定の8個（BD／SD／HH／LT／HT／CR／RD／他）のほかに、「他」に入る音から、専用のパッドにしたい音を最大8個選べます。</p>
+      <div class="row">
+        <button id="btn-pads" type="button" class="btn">専用のパッドを選ぶ…</button>
+        <span id="pads-summary" class="note"></span>
+      </div>
+    </section>
+  </dialog>
+
+  <dialog id="pads-dialog" class="menu" aria-labelledby="h-pads">
+    <div class="menu-head">
+      <h2 id="h-pads">専用のパッド</h2>
+      <button id="btn-pads-close" type="button" class="tbtn">閉じる</button>
+    </div>
+    <p class="note">専用のパッドにしたい音を、最大8個まで選びます。<span class="used-sample">赤い太字</span>は、いま開いている曲で、リズムとして鳴る音。［BD］などは、固定のパッドに入る音（変更できません）。</p>
+    <div id="pads-list" class="pads-list"></div>
   </dialog>
 
   <dialog id="choice" class="menu choice" aria-labelledby="choice-title">
