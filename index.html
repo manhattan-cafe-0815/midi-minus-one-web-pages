@@ -14,9 +14,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="マイナスワン" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <script type="module" crossorigin src="./assets/main-BRUhCERj.js"></script>
+  <script type="module" crossorigin src="./assets/main-E8uC3SVh.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/spessasynth_processor.min-CDgYhvzD.js">
-  <link rel="stylesheet" crossorigin href="./assets/main-B8jR3eE5.css">
+  <link rel="stylesheet" crossorigin href="./assets/main-BaZKBGdg.css">
 </head>
 <body>
   <aside id="install-hint" class="hint" hidden>
@@ -62,6 +62,31 @@
       </div>
       <p id="bpm" class="bpm">BPM: —</p>
 
+      <div class="speedbox">
+        <span class="label">移調</span>
+        <input type="range" id="transpose" min="-12" max="12" step="1" value="0" aria-label="移調（半音）" />
+        <output id="transpose-label" for="transpose">原調</output>
+        <button id="btn-transpose-reset" type="button" class="btn">原調</button>
+      </div>
+
+      <div class="tuning">
+        <div class="speedbox tuning-row">
+          <span class="label">調律</span>
+          <div class="slider-ticks">
+            <input type="range" id="tuning" min="-24" max="26" step="1" value="0" aria-label="調律（A4 の周波数）" />
+            <div id="tuning-ticks" class="ticks" aria-hidden="true"></div>
+          </div>
+          <button id="btn-tuning-reset" type="button" class="btn">440Hz</button>
+        </div>
+        <div class="tuning-meta">
+          <output id="tuning-text" for="tuning">A4 = 440.0 Hz（±0.0 セント）</output>
+          <span class="unit" role="radiogroup" aria-label="調律の刻み">
+            <label><input type="radio" name="tuning-unit" value="Hz" checked /> 1Hz 刻み</label>
+            <label><input type="radio" name="tuning-unit" value="Cents" /> 1セント刻み</label>
+          </span>
+        </div>
+      </div>
+
       <p id="message" class="message" role="status" aria-live="polite"></p>
     </section>
 
@@ -88,6 +113,17 @@
     </section>
 
     <section>
+      <h3>バックアップ</h3>
+      <p class="note">設定（調律など）と、曲ごとの割り当て・移調を、1つのファイルに書き出します。ブラウザの保存領域は、条件によって消えることがあるため、ときどき書き出しておくと安心です。音源（.sf2）は含みません。</p>
+      <div class="row">
+        <button id="btn-backup-export" type="button" class="btn">書き出す</button>
+        <label class="btn" for="backup-file">読み込む</label>
+        <input type="file" id="backup-file" class="visually-hidden" accept=".json,application/json" />
+      </div>
+      <p id="backup-status" class="status"></p>
+    </section>
+
+    <section>
       <h3>このアプリ</h3>
       <pre id="app-info" class="info"></pre>
     </section>
@@ -96,6 +132,12 @@
       <h3>診断</h3>
       <pre id="diag" class="info"></pre>
     </section>
+  </dialog>
+
+  <dialog id="choice" class="menu choice" aria-labelledby="choice-title">
+    <h2 id="choice-title"></h2>
+    <p id="choice-body" class="status"></p>
+    <div id="choice-buttons" class="choice-buttons"></div>
   </dialog>
 
 </body>
