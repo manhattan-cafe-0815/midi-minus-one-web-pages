@@ -1,0 +1,1 @@
+let e;self.onmessage=t=>{e!==void 0&&clearInterval(e),e=void 0,t.data.cmd===`start`&&(e=setInterval(()=>self.postMessage(0),t.data.ms))};
