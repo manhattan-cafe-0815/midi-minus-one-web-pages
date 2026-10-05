@@ -14,9 +14,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="マイナスワン" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <script type="module" crossorigin src="./assets/main-BFP6LiKA.js"></script>
+  <script type="module" crossorigin src="./assets/main-D46bZQf9.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/spessasynth_processor.min-CDgYhvzD.js">
-  <link rel="stylesheet" crossorigin href="./assets/main-CAGuAf1Q.css">
+  <link rel="stylesheet" crossorigin href="./assets/main-BHizSde7.css">
 </head>
 <body>
   <aside id="install-hint" class="hint" hidden>
@@ -175,20 +175,20 @@
 
     <section>
       <h3>表示タイミングの調整</h3>
-      <p class="note">音と画面がずれて聞こえるときに合わせます。＋は表示を遅らせる（音が遅れて聞こえるとき）、－は早めます。再生しながら調整できます。</p>
+      <p class="note">音が遅れて聞こえるとき（外部スピーカーなど）に、表示を遅らせて合わせます（0〜200ms）。再生しながら調整できます。iPad 本体のスピーカーなら、0〜50ms 程度です。</p>
       <div class="offset-row">
         <span>音帯</span>
-        <input type="range" id="band-offset" min="-2000" max="2000" step="10" value="0" aria-label="音帯の表示タイミング" />
+        <input type="range" id="band-offset" min="0" max="200" step="10" value="0" aria-label="音帯の表示タイミング" />
         <output id="band-offset-label">0 ms</output>
         <button id="btn-band-offset-reset" type="button" class="btn">0</button>
       </div>
       <div class="offset-row">
         <span>鍵・パッド</span>
-        <input type="range" id="key-offset" min="-2000" max="2000" step="10" value="0" aria-label="鍵・パッドの発色のタイミング" />
+        <input type="range" id="key-offset" min="0" max="200" step="10" value="0" aria-label="鍵・パッドの発色のタイミング" />
         <output id="key-offset-label">0 ms</output>
         <button id="btn-key-offset-reset" type="button" class="btn">0</button>
       </div>
-      <p class="note">音帯＝流れる帯・降ってくる棒・小節線。鍵・パッド＝鍵盤とパッドの発色。－の側は、先に送ってある音（約0.2秒先まで）までしか、早められません。降ってくる棒は、どちらの向きにも調整できます。</p>
+      <p class="note">音帯＝流れる帯・降ってくる棒・小節線。鍵・パッド＝鍵盤とパッドの発色。</p>
     </section>
 
     <section>

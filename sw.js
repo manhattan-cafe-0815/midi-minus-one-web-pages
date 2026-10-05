@@ -1,14 +1,14 @@
 // Service Worker。ビルド時に、版とキャッシュ対象の一覧を埋めて、dist/sw.js として出力する。
 // アプリ本体（HTML・JS・CSS・アイコン）だけをキャッシュして、オフラインでも起動できるようにする。
 // 利用者の MIDI と .sf2 は、URL で取得するものではないので、ここには入らない。
-const CACHE = 'mmo-a77d27782199';
+const CACHE = 'mmo-09a807c61471';
 const PRECACHE = [
   "./",
   "./index.html",
   "./apple-touch-icon.png",
   "./assets/m0-BoJedd3D.js",
-  "./assets/main-BFP6LiKA.js",
-  "./assets/main-CAGuAf1Q.css",
+  "./assets/main-BHizSde7.css",
+  "./assets/main-D46bZQf9.js",
   "./assets/opfs-worker-C8SwMHp6.js",
   "./assets/spessasynth_processor.min-CDgYhvzD.js",
   "./assets/spessasynth_processor.min-Do8nRWPC.js",
